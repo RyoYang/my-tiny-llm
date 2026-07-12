@@ -1,0 +1,31 @@
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "my-tiny-llm"
+version = "0.1.0"
+description = "A small Qwen3 inference implementation built directly with PyTorch tensors."
+requires-python = ">=3.10, <3.13"
+readme = "README.md"
+dependencies = [
+    "huggingface-hub>=0.30.0",
+    "safetensors>=0.5.0",
+    "torch>=2.6.0",
+    "transformers>=4.51.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.5",
+    "ruff>=0.11.6",
+]
+
+[project.scripts]
+my-tiny-llm = "my_tiny_llm.cli:main"
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+
+[tool.ruff]
+line-length = 88
