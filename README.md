@@ -60,8 +60,15 @@ my-tiny-llm/
 │           └── loader.py            # Hugging Face SafeTensors loading
 └── tests/
     ├── unit/
-    │   ├── test_core.py             # Tensor and attention checks
-    │   └── test_sampling.py         # Sampling checks
+  │   ├── test_ops.py              # Tensor primitive checks
+  │   ├── test_attention.py        # Attention and mask checks
+  │   ├── test_layers.py           # RMSNorm and RoPE checks
+  │   ├── test_config.py           # Qwen3 config adapter checks
+  │   ├── test_models.py           # Qwen3 component checks
+  │   ├── test_sampling.py         # Sampling checks
+  │   ├── test_generation.py       # Generation protocol checks
+  │   ├── test_checkpoint_files.py # Checkpoint discovery checks
+  │   └── test_cli.py              # CLI wiring and device checks
     └── integration/
         ├── test_qwen3.py            # Transformers and cache equivalence
         └── test_checkpoints.py      # Local SafeTensors round trip
@@ -173,7 +180,7 @@ Run:
 
 ```bash
 .venv/bin/python -m pytest \
-  tests/unit/test_core.py::test_tensor_primitives_match_torch -q
+  tests/unit/test_ops.py -q
 ```
 
 ### Stage 2: Attention
@@ -191,11 +198,11 @@ Run one test at a time:
 
 ```bash
 .venv/bin/python -m pytest \
-  tests/unit/test_core.py::test_simple_attention_matches_torch -q
+  tests/unit/test_attention.py::test_simple_attention_matches_torch_with_additive_mask -q
 .venv/bin/python -m pytest \
-  tests/unit/test_core.py::test_causal_attention_with_equal_heads_matches_torch -q
+  tests/unit/test_attention.py::test_causal_attention_with_equal_heads_matches_torch -q
 .venv/bin/python -m pytest \
-  tests/unit/test_core.py::test_simple_multi_head_attention_matches_torch -q
+  tests/unit/test_attention.py::test_multi_head_attention_matches_torch -q
 ```
 
 ### Stage 3: Reusable Layers
@@ -210,8 +217,11 @@ Files:
 | 9-10 | RMSNorm initialization and forward pass | Accumulation dtype |
 | 11 | Rotary position embeddings | Position and head dimensions |
 
-These layers are validated through the Qwen3 integration test. During
-development, use small tensors and inspect shapes before running the full test.
+Run each layer test independently while implementing Exercises 9-11:
+
+```bash
+.venv/bin/python -m pytest tests/unit/test_layers.py -q
+```
 
 ### Stage 4: Qwen3 Components
 
@@ -225,6 +235,12 @@ File: `src/my_tiny_llm/models/qwen3.py`
 
 Keep module attribute names unchanged. The SafeTensors checkpoint loader relies
 on names such as `q_proj`, `k_proj`, `gate_proj`, and `input_layernorm`.
+
+Run:
+
+```bash
+.venv/bin/python -m pytest tests/unit/test_models.py -q
+```
 
 ### Stage 5: Complete Model and KV Cache
 
@@ -264,6 +280,7 @@ Run:
 
 ```bash
 .venv/bin/python -m pytest tests/unit/test_sampling.py -q
+.venv/bin/python -m pytest tests/unit/test_generation.py -q
 ```
 
 ### Stage 7: Checkpoint Loading
@@ -278,6 +295,7 @@ File: `src/my_tiny_llm/checkpoints/loader.py`
 Run:
 
 ```bash
+.venv/bin/python -m pytest tests/unit/test_checkpoint_files.py -q
 .venv/bin/python -m pytest tests/integration/test_checkpoints.py -q
 ```
 
