@@ -193,7 +193,7 @@ Run one test at a time:
 .venv/bin/python -m pytest \
   tests/unit/test_core.py::test_simple_attention_matches_torch -q
 .venv/bin/python -m pytest \
-  tests/unit/test_core.py::test_grouped_causal_attention_matches_expanded_torch_attention -q
+  tests/unit/test_core.py::test_causal_attention_with_equal_heads_matches_torch -q
 .venv/bin/python -m pytest \
   tests/unit/test_core.py::test_simple_multi_head_attention_matches_torch -q
 ```

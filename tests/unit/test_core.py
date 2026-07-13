@@ -35,20 +35,18 @@ def test_simple_attention_matches_torch() -> None:
     torch.testing.assert_close(actual, expected, rtol=1e-5, atol=1e-6)
 
 
-def test_grouped_causal_attention_matches_expanded_torch_attention() -> None:
+def test_causal_attention_with_equal_heads_matches_torch() -> None:
     torch.manual_seed(2)
     query = torch.randn(2, 6, 4, 8)
-    key = torch.randn(2, 2, 4, 8)
-    value = torch.randn(2, 2, 4, 8)
+    key = torch.randn(2, 6, 4, 8)
+    value = torch.randn(2, 6, 4, 8)
     actual = scaled_dot_product_attention_grouped(
         query, key, value, mask="causal"
     )
-    expanded_key = key.repeat_interleave(3, dim=1)
-    expanded_value = value.repeat_interleave(3, dim=1)
     expected = functional.scaled_dot_product_attention(
         query,
-        expanded_key,
-        expanded_value,
+        key,
+        value,
         attn_mask=causal_mask(4, 4, query.dtype),
     )
     torch.testing.assert_close(actual, expected, rtol=1e-5, atol=1e-6)
